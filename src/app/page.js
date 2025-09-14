@@ -1,18 +1,52 @@
+"use client";
 import Link from "next/link";
 import CounterModify from "@/components/CounterModify";
 import CounterDisplay from "@/components/CounterDisplay";
 import NavigationBar from "@/components/NavigationBar/NavigationBar";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // 클라이언트에서만 실행되는 영역
+    const token = localStorage.getItem("accessToken");
+    
+    if (!token) {
+      router.replace('/login');
+    } else {
+      setIsAuthenticated(true);
+    }
+    
+    setIsLoading(false);
+  }, [router]);
+
+  // 로딩 중일 때 표시할 화면
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  // 인증되지 않은 경우 (리다이렉트 중)
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // 인증된 사용자에게만 보여줄 홈페이지
   return (
     <>
-      <div className="text-3xl font-bold text-blue-500">Hello Tailwind!</div>
-      {/* <CounterModify /> */}
-      {/* <CounterDisplay /> */}
+      <h1 className="text-3xl font-bold">홈페이지</h1>
       <NavigationBar />
     </> 
   )
 }
+
 /*
 export default function Home() {
   return (
@@ -28,11 +62,7 @@ export default function Home() {
     </>
   );
 }
-
-
-
 */
-
 
 /*
 라우팅 설정 
