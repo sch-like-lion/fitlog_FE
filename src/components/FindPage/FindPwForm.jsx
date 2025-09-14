@@ -1,6 +1,8 @@
 "use client"
 import React, { useState } from "react";
 import styles from "./FindPwForm.module.css"; //module.css 사용
+import Input from "../common/Input/Input";
+import Button from "../common/Button/Button";
 
 function FindPwForm() {
   const [name, setName] = useState(""); //이름
@@ -43,78 +45,85 @@ function FindPwForm() {
   const isPwMismatch = newPw && confirmPw && newPw !== confirmPw; //둘 다 입력되었고, 서로 다르면 → true (비밀번호 불일치) 그렇지 않으면 → false (입력 전이거나, 같으면)
 
   return (
-    <div className={styles.container}>
+    // <div className={styles.container}>
+    <div className="flex flex-col gap-5">
       {!showPwReset ? (
         <>
-          <input
+          <Input
             type="text"
             placeholder="이름"
             value={name}
             onChange={(e) => setName(e.target.value)} //치는 순간 쓰게 해주는 코드
-            className={styles.inputFull} //inputFull: css에서 칸 
+            // className={styles.inputFull} //inputFull: css에서 칸 
           />
 
-          <input
+          <Input
             type="text"
             placeholder="아이디"
             value={id}
             onChange={(e) => setId(e.target.value)}
-            className={styles.inputFull}
+            // className={styles.inputFull}
           />
 
-          <div className={styles.inputGroup}>
-            <input
+          {/* <div className={styles.inputGroup}> */}
+          <div className="relative">
+            <Input
               type="email"
               placeholder="이메일"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={styles.inputHalf}
+              // className={styles.inputHalf}
+              className="w-full pr-20"
             />
-            <button
-              className={styles.smallButton}
+            <Button
+              // className={styles.smallButton}
               onClick={handleSendVerification1}
               disabled={!email.trim()} //안치면 안나타남
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs px-2 py-1 rounded-xl"
             >
-              인증번호 전송
-            </button>
+              전송
+            </Button>
+          {isEmailVerified && (
+            <div className="text-green-600 font-bold text-xs absolute">이메일 인증 완료</div> //인증번호 전송 누를시 나오는 문구
+          )} 
           </div>
 
-          {isEmailVerified && (
-            <div className={styles.verificationMessage}>이메일 인증 완료</div> //인증번호 전송 누를시 나오는 문구
-          )} 
 
-          <div className={styles.inputGroup}>
-            <input
+          {/* <div className={styles.inputGroup}> */}
+          <div className="relative">
+            <Input
               type="text"
               placeholder="인증번호"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className={styles.inputHalf}
+              // className={styles.inputHalf}
+              className="w-full pr-20"
             />
-            <button
-              className={styles.smallButton}
+            <Button
+              // className={styles.smallButton}
               onClick={handleSendVerification2}
               disabled={!code.trim()}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs px-2 py-1 rounded-xl"
             >
               확인
-            </button>
+            </Button>
+          {isCodeVerified && (
+            <div className="text-green-600 font-bold text-xs absolute">인증번호 확인 완료</div>
+          )}
           </div>
 
-          {isCodeVerified && (
-            <div className={styles.verificationMessage}>인증번호 확인 완료</div>
-          )}
 
-          <button
-            className={styles.findButton}
+          <Button
+            // className={styles.findButton}
             disabled={!isFormValid}
             onClick={handleFindPassword}
           >
             비밀번호 찾기
-          </button>
+          </Button>
         </>
       ) : (
         <>
-          <input
+          <Input
             type="password"
             placeholder="새로운 비밀번호 입력"
             value={newPw}
@@ -122,7 +131,7 @@ function FindPwForm() {
             className={styles.inputFull}
           />
 
-          <input
+          <Input
             type="password"
             placeholder="새로운 비밀번호 확인"
             value={confirmPw}
@@ -131,7 +140,7 @@ function FindPwForm() {
           />
 
           {isPwMismatch && (
-            <div className={styles.errorMessage}>비밀번호가 다릅니다.</div> //다르면 에러 메세지
+            <div className="text-red-600 font-bold text-xs absolute">비밀번호가 다릅니다.</div> //다르면 에러 메세지
           )}
 
           <button

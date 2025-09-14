@@ -7,7 +7,6 @@ import SocialLoginButtons from "@/components/LoginPage/SocialLoginButtons/Social
 export default function LoginPage() {
   return (
     <div>
-      <h2 className="text-2xl font-semibold absolute left-6 top-6 mb-0">로그인</h2>
       <LoginForm />
       <SocialLoginButtons />
     </div>

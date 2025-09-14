@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react';
-
+import Input from '@/components/common/Input/Input';
+import Button from '../common/Button/Button';
 export default function SignupForm() {
   const [name, setName] = useState('');
   const [userid, setUserid] = useState('');
@@ -89,20 +90,20 @@ export default function SignupForm() {
       <h2 className="text-2xl font-semibold absolute left-6 top-6 mb-0">회원가입</h2>
       <div className="pt-14" />
 
-      <input
+      <Input
         className="block w-full border p-2 rounded"
         placeholder="이름"
         value={name}
         onChange={e => setName(e.target.value)} // 입력시 onChange 발생, 사용자의 입력을 value값으로 set
       />
-      <input
+      <Input
         className="block w-full border p-2 rounded"
         placeholder="아이디"
         value={userid}
         onChange={e => setUserid(e.target.value)}
       />
 
-      <input
+      <Input
         type="password" // type을 password로 지정해 사용자에게 ●●●● 모양으로 보여줌
         className="block w-full border p-2 rounded"
         placeholder="비밀번호"
@@ -112,23 +113,23 @@ export default function SignupForm() {
       />
 
       <div className="flex space-x-2">
-        <input
+        <Input
           className="flex-1 border p-2 rounded"
           placeholder="이메일"
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
-        <button
+        <Button
           type="button"
           className="bg-gray-200 px-2 rounded text-sm text-white"
           onClick={handleSendCode}  // 클릭할 경우 인증번호 전송. 
         >
           인증번호 전송
-        </button>
+        </Button>
       </div>
 
       <div className="flex space-x-2">
-        <input
+        <Input
           className={`flex-1 border p-2 rounded ${isEmailCodeEnabled ? '' : 'bg-gray-100'}`} 
           // isEmailCodeEnable가 true, 즉 인증번호 전송 클릭시 배경색 x, 아니라면 배경색 회색
           placeholder="인증번호"
@@ -137,16 +138,16 @@ export default function SignupForm() {
           disabled={!isEmailCodeEnabled}  
           // isEmailCodeEnabled가 false라면 이 속성이 true가 되어 입력창이 비활성화되고, 사용자가 입력 불가능
         />
-        <button type="button" className="bg-gray-200 px-2 rounded text-sm text-white">확인</button>
+        <Button type="button" className="bg-gray-200 px-2 rounded text-sm text-white">확인</Button>
       </div>
 
-      <input
+      <Input
         className="block w-full border p-2 rounded"
         placeholder="키"
         value={height}
         onChange={e => setHeight(e.target.value)}
       />
-      <input
+      <Input
         className="block w-full border p-2 rounded"
         placeholder="몸무게"
         value={weight}
@@ -215,12 +216,12 @@ export default function SignupForm() {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
         className="w-full bg-black text-white py-3 rounded text-lg font-bold tracking-wider"
       >
         회원가입
-      </button>
+      </Button>
     </form>
   );
 }
