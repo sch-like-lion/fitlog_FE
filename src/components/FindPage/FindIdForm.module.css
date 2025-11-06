@@ -1,91 +1,36 @@
-/* FindIdForm.module.css */
-
-.container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.inputFull {
-  width: 100%;
-  padding: 14px 20px;
-  font-size: 18px;
-  border-radius: 12px;
-  border: 1.5px solid #ccc;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.inputGroup {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
+/* 입력 테두리 색만 살짝 따뜻하게 */
+.inputFull,
 .inputHalf {
-  flex: 1;
-  padding: 14px 60px 14px 20px;
-  font-size: 18px;
-  border-radius: 12px;
-  border: 1.5px solid #ccc;
-  outline: none;
-  box-sizing: border-box;
+  border: 1.5px solid #E6E0DB;
+  background-color: #FFFFFF;
+  color: #222222;
 }
 
+/* 작은 버튼: 남색 */
 .smallButton {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 50%;
-  padding: 0 12px;
-  font-size: 12px;
-  border-radius: 12px;
-  border: 1.5px solid #ccc;
-  background-color: grey;
-  color: white;
-  cursor: pointer;
+  background-color: #2F4A67;
+  border-color: #2F4A67;
+  color: #FFFFFF;
 }
 
+/* 메인 버튼: 주황 */
 .findButton {
-  margin-top: 10px;
-  padding: 14px 0;
-  font-size: 20px;
-  border-radius: 12px;
-  border: 1.5px solid #ccc;
-  background-color: white;
-  color: black;
-  cursor: pointer;
-  font-weight: bold;
+  background-color: #E08B3E;
+  border-color: #E08B3E;
+  color: #FFFFFF;
 }
+
 
 .verificationMessage {
   color: green;
-  font-weight: bold;
-  /* margin-top: -10px; */
-  font-size: 13px;
-  position: absolute;
-  /* margin-bottom: 10px; */
-  /* margin-left: 4px; */
 }
 
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
- /* z-index: 999;*/
-}
-
+/* 비활성화 톤: 연한 베이지 그레이 */
 .findButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+  background-color: #D6CCC3;
+}
+
+/* 모달 오버레이(이미 흰색) 유지 */
+.modalOverlay {
+  background-color: #FFFFFF;
 }

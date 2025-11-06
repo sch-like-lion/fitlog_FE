@@ -1,0 +1,62 @@
+/* 하얀 박스 컨테이너 */
+nav {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.08);
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  align-items: center;
+}
+
+/* 아이템 래퍼 (균등 정렬) */
+nav > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 링크 버튼 */
+nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;                  /* 터치 타겟 */
+  padding: 8px 6px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #4b5563;                     /* 기본 텍스트 회색 */
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, transform 80ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 호버/포커스 */
+nav a:hover,
+nav a:focus-visible {
+  background-color: rgba(224, 139, 62, 0.08); /* 주황 톤 하이라이트 */
+  color: #e08b3e;                              /* 포인트 주황 */
+  outline: none;
+}
+
+/* 클릭 느낌 */
+nav a:active {
+  transform: translateY(1px);
+}
+
+/* 현재 페이지(선택된 탭) 표시 — Link에 aria-current="page" 달면 적용됨 */
+nav a[aria-current="page"] {
+  color: #e08b3e;
+  background-color: rgba(224, 139, 62, 0.12);
+}
+
+/* 작은 화면 폰트/여백 미세 조정 */
+@media (max-width: 420px) {
+  nav { border-radius: 14px; }
+  nav a { font-size: 11px; padding: 8px 4px; }
+}
