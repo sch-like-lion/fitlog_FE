@@ -1,36 +1,94 @@
-/* 입력 테두리 색만 살짝 따뜻하게 */
 .inputFull,
 .inputHalf {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+
+
   border: 1.5px solid #E6E0DB;
   background-color: #FFFFFF;
   color: #222222;
+  box-sizing: border-box;
 }
 
-/* 작은 버튼: 남색 */
+.inputFull::placeholder,
+.inputHalf::placeholder {
+  color: #A9A39E;
+}
+
 .smallButton {
   background-color: #2F4A67;
-  border-color: #2F4A67;
+  border: 1px solid #2F4A67;
   color: #FFFFFF;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  cursor: pointer;
 }
 
-/* 메인 버튼: 주황 */
+.smallButton:disabled {
+  background-color: #D2C9C1;
+  border-color: #D2C9C1;
+  cursor: default;
+}
+
 .findButton {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+
   background-color: #E08B3E;
-  border-color: #E08B3E;
+  border: 1px solid #E08B3E;
   color: #FFFFFF;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.findButton:disabled {
+  background-color: #D6CCC3;
+  border-color: #D6CCC3;
+  cursor: default;
 }
 
 
 .verificationMessage {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: green;
 }
 
-/* 비활성화 톤: 연한 베이지 그레이 */
-.findButton:disabled {
-  background-color: #D6CCC3;
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
 }
 
-/* 모달 오버레이(이미 흰색) 유지 */
-.modalOverlay {
-  background-color: #FFFFFF;
+
+.modalContent {
+  background-color: #ffffff;
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  max-width: 320px;
+  width: 80%;
+}
+
+
+.modalCloseButton {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background-color: #2F4A67;
+  color: #ffffff;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
 }

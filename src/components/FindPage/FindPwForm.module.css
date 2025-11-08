@@ -1,4 +1,101 @@
-.container {
+/* 전체 컨테이너: 기존 .container 스타일 매핑 */
+.formWrapper {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 전체 입력 인풋: 기존 .inputFull */
+.inputFull { 
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 1.5px solid #ccc;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* 인풋 + 버튼 한 줄: 기존 .inputGroup */
+.inputWithButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* (현재 JSX에서는 안 쓰지만 혹시 모를 재사용용: 기존 유지) */
+.inputHalf {
+  flex: 1;
+  padding: 14px 60px 14px 20px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 1.5px solid #ccc;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* 작은 전송/확인 버튼: 기존 .smallButton */
+.smallButton {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  padding: 0 12px;
+  font-size: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #ccc;
+  background-color: grey;
+  color: white;
+  cursor: pointer;
+}
+
+.smallButton:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* 인증 완료/에러 메시지: 기존 스타일 유지 */
+.verificationMessage {
+  color: green;
+  font-weight: bold;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  margin-left: 4px;
+}
+
+.errorMessage {
+  color: red;
+  font-weight: bold;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  margin-left: 4px;
+}
+
+/* 비밀번호 찾기 / 변경 메인 버튼: JSX에서 findButton 사용 */
+.findButton {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 18px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  border: none;
+  background-color: #E08B3E;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.findButton:disabled {
+  background-color: #D6CCC3;
+  cursor: not-allowed;
+}
+
+
+/* .container {
   max-width: 400px;
   margin: 50px auto;
   padding: 20px;
@@ -67,4 +164,4 @@
   margin-top: -10px;
   margin-bottom: 10px;
   margin-left: 4px;
-}
+} */
