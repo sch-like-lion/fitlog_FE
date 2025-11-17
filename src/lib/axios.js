@@ -8,8 +8,6 @@ axios.defaults.headers.post['Content-Type'] = 'application/json' // post 요청�
 이렇게 해놔도 아래에 반영안된다고 함
 */
 const baseURL = "https://fitlog.iubns.net"
-
-
 const normalAPI = axios.create({
   baseURL : baseURL,
   headers : {
