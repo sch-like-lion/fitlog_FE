@@ -74,21 +74,28 @@ export default function SignupForm() {
       mailcheck: !!emailCode,
     };
 
-    try {
-      const response = await normalAPI.post("/api/users/signup", body);
-      if (response.status === 201) {
-        alert(response.data.message);
-        // 가입 후 원하는 동작 (ex 페이지 이동)
-      } else if (response.status === 400) {
-        alert(response.data.message || Object.values(response.data)[0]);
-      } else {
-        alert("가입에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-      }
-    } catch (err) {
-      alert("네트워크 오류가 발생했습니다.");
-      console.error(err);
+  try {
+    const response = await fetch("https://fitlog.iubns.net:8080/api/users/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (response.status === 201) {
+      const data = await response.json();
+      alert(data.message);
+      // 가입 후 원하는 동작 (ex 페이지 이동)
+    } else if (response.status === 400) {
+      const error = await response.json();
+      alert(error.message || Object.values(error)[0]);
+    } else {
+      alert("가입에 실패했습니다. 잠시 후 다시 시도해 주세요.");
     }
-  };
+  } catch (err) {
+    alert("네트워크 오류가 발생했습니다.");
+    console.error(err);
+  }
+};
 
 
   const sendAuthCode = async (email) => {

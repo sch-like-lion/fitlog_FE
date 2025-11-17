@@ -5,6 +5,12 @@ import Providers from "../components/Providers";
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="tc-new-price">
+      <head>
+        <link 
+          href="https://fonts.googleapis.com/icon?family=Material+Icons" 
+          rel="stylesheet" 
+        />
+      </head>
       <body className="min-h-screen flex items-center justify-center bg-gray-50">
         <Providers>{children}</Providers>
       </body>

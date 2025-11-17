@@ -1,7 +1,11 @@
+import Shop from "@/components/ShopPage/Shop";
+import NavigationBar from "@/components/NavigationBar/NavigationBar";
+
 export default function ShopPage() {
   return (
     <div>
-      <h1>샵 페이지</h1>
+      <Shop />
+      {/* <NavigationBar /> */}
     </div>
   )
 }
