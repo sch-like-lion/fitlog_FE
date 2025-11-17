@@ -34,7 +34,7 @@ export default function Home() {
   }
 
   // 인증되지 않은 경우 (리다이렉트 중)
-  if (!isAuthenticated) {
+  if (!isAuthenticated) { 
     return null;
   }
 
@@ -47,7 +47,7 @@ export default function Home() {
   )
 }
 
-/*
+/* 
 export default function Home() {
   return (
     <>
