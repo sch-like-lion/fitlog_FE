@@ -28,7 +28,7 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(false);
   const [monthLoading, setMonthLoading] = useState(false); // 월별 로딩 상태
 
-  // userId (실제로는 로그인 정보에서 가져와야 함)
+  // 요거 userId는 어디서 가져와야하는거지??
   const userId = 1; // TODO: 로그인한 사용자 ID로 변경
 
   // 특정 날짜의 운동 기록 조회
@@ -58,7 +58,6 @@ export default function CalendarPage() {
     }
   };
 
-  // ✅ 추가: 해당 월의 모든 날짜 기록을 미리 로드
   const fetchMonthRecords = async (year, month) => {
     setMonthLoading(true);
     const newMonthRecords = {};
