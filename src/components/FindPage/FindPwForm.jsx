@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import styles from "./FindPwForm.module.css";
+import styles from "./FindPwForm.module.css"; // 있어도 되고, 안 써도 됨 (아래에서 errorMessage 안 쓰면 삭제 가능)
 import Input from "../common/Input/Input";
 import Button from "../common/Button/Button";
 import { normalAPI } from "@/lib/axios";
@@ -94,7 +94,6 @@ function FindPwForm() {
     if (!isFormValid) return;
 
     if (!resetToken) {
-      // 인증번호 검증(=resetToken 발급)이 안 된 상태
       alert("인증번호 확인을 먼저 완료해주세요.");
       return;
     }
@@ -124,7 +123,6 @@ function FindPwForm() {
       console.log("비밀번호 재설정 성공:", res.data);
       alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
 
-      // 초기화 (원하면 라우터로 로그인 페이지 이동)
       window.location.reload();
     } catch (err) {
       console.error("비밀번호 재설정 실패:", err);
@@ -152,98 +150,115 @@ function FindPwForm() {
 
   const isPwMismatch = newPw && confirmPw && newPw !== confirmPw;
 
-  return (
-    <div className={styles.formWrapper}>
-      {!showPwReset ? (
-        <>
-          <Input
-            type="text"
-            placeholder="이름"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={styles.inputFull}
-          />
+  // ====== 여기부터 UI (디자인) 부분 ======
+  // 아이디 찾기 JSX의 클래스들을 그대로 가져와서 사용
 
-          <Input
-            type="text"
-            placeholder="아이디"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            className={styles.inputFull}
-          />
-
-          {/* 이메일 + 전송 */}
-          <div className={styles.inputWithButton}>
-            <Input
-              type="email"
-              placeholder="이메일"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setIsEmailVerified(false);
-                setIsCodeVerified(false);
-                setResetToken("");
-              }}
-              className={styles.inputFull}
-            />
-            <Button
-              onClick={handleSendVerification1}
-              disabled={!email.trim() || loadingEmail}
-              className={styles.smallButton}
-            >
-              {loadingEmail ? "전송중..." : "전송"}
-            </Button>
-            {isEmailVerified && (
-              <div className={styles.verificationMessage}>
-                이메일 인증번호가 전송되었습니다
-              </div>
-            )}
-          </div>
-
-          {/* 인증번호 + 확인 */}
-          <div className={styles.inputWithButton}>
+  if (!showPwReset) {
+    // 1단계: 비밀번호 찾기(이름/아이디/이메일/인증번호)
+    return (
+      <>
+        <div>
+          <div className="flex flex-col gap-5 mb-6">
+            {/* 이름 */}
             <Input
               type="text"
-              placeholder="인증번호"
-              value={code}
-              onChange={(e) => {
-                setCode(e.target.value);
-                setIsCodeVerified(false);
-                setResetToken("");
-              }}
-              className={styles.inputFull}
+              placeholder="이름"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="bg-white border border-[#E6E0DB] text-[#222] placeholder:text-[#A9A39E]"
             />
-            <Button
-              onClick={handleSendVerification2}
-              disabled={!code.trim() || !email.trim() || loadingCode}
-              className={styles.smallButton}
-            >
-              {loadingCode ? "확인중..." : "확인"}
-            </Button>
-            {isCodeVerified && (
-              <div className={styles.verificationMessage}>
-                인증번호 확인이 완료되었습니다
-              </div>
-            )}
+
+            {/* 아이디 */}
+            <Input
+              type="text"
+              placeholder="아이디"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              className="bg-white border border-[#E6E0DB] text-[#222] placeholder:text-[#A9A39E]"
+            />
+
+            {/* 이메일 + 전송 */}
+            <div className="relative">
+              <Input
+                type="email"
+                placeholder="이메일"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setIsEmailVerified(false);
+                  setIsCodeVerified(false);
+                  setResetToken("");
+                }}
+                className="w-full pr-20 bg-white border border-[#E6E0DB] text-[#222] placeholder:text-[#A9A39E]"
+              />
+              <Button
+                onClick={handleSendVerification1}
+                disabled={!email.trim() || loadingEmail}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-sm px-2 py-1 rounded-xl
+                           bg-[#2F4A67] text-white disabled:bg-[#D2C9C1]"
+              >
+                {loadingEmail ? "전송중..." : "전송"}
+              </Button>
+              {isEmailVerified && (
+                <div className="text-green-600 font-bold text-xs mt-1">
+                  이메일 인증번호가 전송되었습니다
+                </div>
+              )}
+            </div>
+
+            {/* 인증번호 + 확인 */}
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="인증번호"
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                  setIsCodeVerified(false);
+                  setResetToken("");
+                }}
+                className="w-full pr-20 bg-white border border-[#E6E0DB] text-[#222] placeholder:text-[#A9A39E]"
+              />
+              <Button
+                onClick={handleSendVerification2}
+                disabled={!code.trim() || !email.trim() || loadingCode}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-sm px-2 py-1 rounded-xl
+                           bg-[#2F4A67] text-white disabled:bg-[#D2C9C1]"
+              >
+                {loadingCode ? "확인중..." : "확인"}
+              </Button>
+              {isCodeVerified && (
+                <div className="text-green-600 font-bold text-xs mt-1">
+                  인증번호 확인이 완료되었습니다
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* 비밀번호 찾기 버튼 */}
+          {/* 비밀번호 찾기 버튼 → 아이디 찾기 버튼과 동일 스타일 */}
           <Button
             disabled={!isFormValid}
             onClick={handleFindPassword}
-            className={styles.findButton}
+            className="w-full bg-[#E08B3E] text-white disabled:bg-[#D6CCC3]"
           >
             비밀번호 찾기
           </Button>
-        </>
-      ) : (
-        <>
+        </div>
+      </>
+    );
+  }
+
+  // 2단계: 새 비밀번호 입력 단계
+  return (
+    <>
+      <div>
+        <div className="flex flex-col gap-5 mb-6">
           <Input
             type="password"
             placeholder="새로운 비밀번호 입력"
             value={newPw}
             onChange={(e) => setNewPw(e.target.value)}
-            className={styles.inputFull}
+            className="bg-white border border-[#E6E0DB] text-[#222] placeholder:text-[#A9A39E]"
           />
 
           <Input
@@ -251,26 +266,26 @@ function FindPwForm() {
             placeholder="새로운 비밀번호 확인"
             value={confirmPw}
             onChange={(e) => setConfirmPw(e.target.value)}
-            className={styles.inputFull}
+            className="bg-white border border-[#E6E0DB] text-[#222] placeholder:text-[#A9A39E]"
           />
 
           {isPwMismatch && (
-            <div className={styles.errorMessage}>
+            <div className="text-red-600 font-bold text-xs mt-1">
               비밀번호가 서로 일치하지 않습니다.
             </div>
           )}
+        </div>
 
-          {/* 비밀번호 변경 */}
-          <Button
-            onClick={handlePasswordChange}
-            disabled={!newPw || !confirmPw || isPwMismatch || loadingReset}
-            className={styles.findButton}
-          >
-            {loadingReset ? "변경중..." : "비밀번호 변경"}
-          </Button>
-        </>
-      )}
-    </div>
+        {/* 비밀번호 변경 버튼도 동일 스타일 */}
+        <Button
+          onClick={handlePasswordChange}
+          disabled={!newPw || !confirmPw || isPwMismatch || loadingReset}
+          className="w-full bg-[#E08B3E] text-white disabled:bg-[#D6CCC3]"
+        >
+          {loadingReset ? "변경중..." : "비밀번호 변경"}
+        </Button>
+      </div>
+    </>
   );
 }
 

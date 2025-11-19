@@ -4,7 +4,6 @@ import Input from '../common/Input/Input';
 import Button from '../common/Button/Button';
 import { normalAPI } from "@/lib/axios";
 
-
 import { localStorageAPI } from '../../lib/axios';
 export default function SignupForm() {
   const [name, setName] = useState('');
