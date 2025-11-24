@@ -1,0 +1,86 @@
+.settings {
+  max-width: 390px;           /* 모바일 기준 폭 */
+  margin: 0 auto;
+  padding: 16px 12px 32px;
+  color: #111827;
+}
+
+/* 프로필 헤더 */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 2px 18px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #f3cfa6;  /* 스크린샷 비슷한 옅은 베이지 라인 */
+  background: #fffdf8;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nickname {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.edit {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;             /* 파란 링크 */
+  text-decoration: none;
+}
+.edit:hover { text-decoration: underline; }
+
+/* 메뉴 공통 스타일 */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px 12px;
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: #111827;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.08);
+  cursor: pointer;
+}
+
+/* a 태그가 버튼처럼 보이도록 */
+a.menuItem {
+  text-decoration: none;
+}
+
+/* 인터랙션 */
+.menuItem:hover {
+  background: #fafbfc;
+}
+.menuItem:active {
+  transform: translateY(1px);
+}
+
+/* 접근성(키보드 포커스) */
+.menuItem:focus-visible,
+.edit:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
