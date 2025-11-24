@@ -39,8 +39,12 @@ const localStorageAPI = axios.create({
 })
 
 localStorageAPI.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
-  if(token) config.headers.Authorization = `Bearer ${token}`
+  // 로그인쪽에서 'accessToken'으로 저장하고 있으므로 둘 다 체크해서 호환 처리
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('token')
+  if (token) {
+    config.headers = config.headers || {}
+    config.headers.Authorization = `Bearer ${token}`
+  }
   return config
 })
 

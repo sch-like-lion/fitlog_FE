@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Input from '../common/Input/Input';
 import Button from '../common/Button/Button';
 
-import { localStorageAPI } from '../../lib/axios';
+import { normalAPI } from '@/lib/axios';
 export default function SignupForm() {
   const [name, setName] = useState('');
   const [userid, setUserid] = useState('');
@@ -14,10 +14,12 @@ export default function SignupForm() {
   const [weight, setWeight] = useState('');
 
   const [isEmailCodeEnabled, setIsEmailCodeEnabled] = useState(false);
-  // 인증번호 입력창 활성화 비활성화를 결정하는 역할
+  const [isSendCodeDisabled, setIsSendCodeDisabled] = useState(false);
+  const [isVerifyDisabled, setIsVerifyDisabled] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
-  const [allAgree, setAllAgree] = useState(false);  // 모두 동의 체크박스체
-  const [termsAgree, setTermsAgree] = useState({    // 각 세부 동의의 항목을 따로 관리
+  const [allAgree, setAllAgree] = useState(false);
+  const [termsAgree, setTermsAgree] = useState({
     age14: false,
     tos: false,
     privacy: false,
@@ -25,8 +27,15 @@ export default function SignupForm() {
     adsOption: false,
   });
 
-  const handleSendCode = () => {
-    setIsEmailCodeEnabled(true);  // 이 함수 실행 시 isEmailCodeEnable가 true화 => 인증번호 입력창이 활성화됨
+  const handleSendCode = async () => {
+    if (!email) return;
+    setIsSendCodeDisabled(true);
+    try {
+      await sendAuthCode(email);
+      setIsEmailCodeEnabled(true);
+    } catch (e) {
+      setIsSendCodeDisabled(false);
+    }
   };
 
   const handleAllAgree = (checked) => {
@@ -44,52 +53,80 @@ export default function SignupForm() {
     setTermsAgree(updated);
     setAllAgree(Object.values(updated).every(v => v));
   };
-  // 각 동의 항목의 체크 버튼이 눌릴 때마다 상태를 업데이트하고
-  // 모든 항목이 체크되면 자동으로 [전체 동의]도 체크
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const body = {
-    nickname: name,
-    customId: userid,
-    password,
-    email,
-    height: parseInt(height, 10),
-    weight: parseInt(weight, 10),
-    mailcheck: !!emailCode, // 인증번호 입력이 있으면 true, 없으면 false
+    e.preventDefault();
+    if (!name) { alert('이름이 비어있습니다.'); return; }
+    if (!userid) { alert('아이디가 비어있습니다.'); return; }
+    if (!password) { alert('비밀번호가 비어있습니다.'); return; }
+    if (!email) { alert('이메일이 비어있습니다.'); return; }
+    if (!isEmailVerified) { alert('이메일 인증을 완료해 주세요.'); return; }
+    if (!height) { alert('키가 비어있습니다.'); return; }
+    if (!weight) { alert('몸무게가 비어있습니다.'); return; }
+
+    const body = {
+      nickname: name,
+      customId: userid,
+      password,
+      email,
+      height: parseInt(height, 10),
+      weight: parseInt(weight, 10),
+      mailcheck: isEmailVerified,
+    };
+
+    try {
+      const response = await normalAPI.post('/api/users/signup', body);
+      if (response.status === 200) {
+        alert(response.data.message || '회원가입이 완료되었습니다.');
+        // 가입 후 로그인 페이지로 이동
+        window.location.href = '/login';
+      } else if (response.status === 400) {
+        alert(response.data.message || Object.values(response.data)[0]);
+      } else {
+        alert('가입에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      }
+    } catch (err) {
+      alert('네트워크 오류가 발생했습니다.');
+      console.error(err);
+    }
   };
 
-  try {
-    const response = await fetch("https://fitlog.iubns.net/api/users/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (response.status === 200) {
-      const data = await response.json();
-      alert(data.message);
-      // 가입 후 로그인 페이지로 이동
-      window.location.href = '/login';
-    } else if (response.status === 400) {
-      const error = await response.json();
-      alert(error.message || Object.values(error)[0]);
-    } else {
-      alert("가입에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+  const sendAuthCode = async (email) => {
+    try {
+      const response = await normalAPI.post('/api/email', { email });
+      alert(response.data.message || '인증번호 전송 완료');
+    } catch (err) {
+      alert('인증번호 전송 실패');
+      throw err;
     }
-  } catch (err) {
-    alert("네트워크 오류가 발생했습니다.");
-    console.error(err);
-  }
-};
+  };
 
+  const verifyAuthCode = async (code) => {
+    if (!email) { alert('이메일을 입력해주세요.'); return; }
+    if (!code) { alert('인증번호를 입력해주세요.'); return; }
+    setIsVerifyDisabled(true);
+    try {
+  // 서버에 검증 endpoint는 '/api/users/password/verify-code'
+  const response = await normalAPI.post('/api/users/password/verify-code', { email, code });
+      if (response.status === 200 || response.status === 201) {
+        alert(response.data.message || '이메일 인증이 완료되었습니다.');
+        setIsEmailVerified(true);
+      } else {
+        alert(response.data.message || '인증에 실패했습니다.');
+      }
+    } catch (err) {
+      alert('인증 확인에 실패했습니다.');
+      console.error(err);
+    } finally {
+      setIsVerifyDisabled(false);
+    }
+  };
 
   return (
-    <form 
-      className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md space-y-4 relative" 
-      // 최대 너비를 중간 크기로, 좌우 마진 자동, 배경 하얗게, 내부 패딩 24px, 모서리 많이, 그림자 중간, 안에 있는 것들 y축이 각 16px씩 간격, 위치속성 realative
-      onSubmit={handleSubmit} 
-    >  
+    <form
+      className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md space-y-4 relative"
+      onSubmit={handleSubmit}
+    >
       <h2 className="text-2xl font-semibold absolute left-6 top-6 mb-0">회원가입</h2>
       <div className="pt-14" />
 
@@ -97,7 +134,7 @@ export default function SignupForm() {
         className="block w-full border p-2 rounded"
         placeholder="이름"
         value={name}
-        onChange={e => setName(e.target.value)} // 입력시 onChange 발생, 사용자의 입력을 value값으로 set
+        onChange={e => setName(e.target.value)}
       />
       <Input
         className="block w-full border p-2 rounded"
@@ -107,12 +144,11 @@ export default function SignupForm() {
       />
 
       <Input
-        type="password" // type을 password로 지정해 사용자에게 ●●●● 모양으로 보여줌
+        type="password"
         className="block w-full border p-2 rounded"
         placeholder="비밀번호"
         value={password}
-        onChange={e => setPassword(e.target.value)} 
-        //TODO 비밀번호 유효성 검사 및 비밀번호 보이기 버튼 추가 해야함
+        onChange={e => setPassword(e.target.value)}
       />
 
       <div className="flex space-x-2">
@@ -124,8 +160,9 @@ export default function SignupForm() {
         />
         <Button
           type="button"
-          className="bg-gray-200 px-2 rounded text-sm text-white"
-          onClick={handleSendCode}  // 클릭할 경우 인증번호 전송. 
+          className={`${(!email || isSendCodeDisabled) ? 'bg-gray-400' : 'bg-black'} px-2 rounded text-sm text-white`}
+          onClick={handleSendCode}
+          disabled={!email || isSendCodeDisabled}
         >
           인증번호 전송
         </Button>
@@ -133,15 +170,20 @@ export default function SignupForm() {
 
       <div className="flex space-x-2">
         <Input
-          className={`flex-1 border p-2 rounded ${isEmailCodeEnabled ? '' : 'bg-gray-100'}`} 
-          // isEmailCodeEnable가 true, 즉 인증번호 전송 클릭시 배경색 x, 아니라면 배경색 회색
+          className={`flex-1 border p-2 rounded ${isEmailCodeEnabled ? '' : 'bg-gray-100'}`}
           placeholder="인증번호"
           value={emailCode}
           onChange={e => setEmailCode(e.target.value)}
-          disabled={!isEmailCodeEnabled}  
-          // isEmailCodeEnabled가 false라면 이 속성이 true가 되어 입력창이 비활성화되고, 사용자가 입력 불가능
+          disabled={!isEmailCodeEnabled}
         />
-        <Button type="button" className="bg-gray-200 px-2 rounded text-sm text-white">확인</Button>
+        <Button
+          type="button"
+          className={`${(!emailCode || isVerifyDisabled) ? 'bg-gray-400' : 'bg-black'} px-2 rounded text-sm text-white`}
+          onClick={() => verifyAuthCode(emailCode)}
+          disabled={!emailCode || isVerifyDisabled}
+        >
+          확인
+        </Button>
       </div>
 
       <Input
@@ -157,7 +199,6 @@ export default function SignupForm() {
         onChange={e => setWeight(e.target.value)}
       />
 
-      {/* 약관 동의 섹션 */}
       <div className="w-full border border-gray-300 rounded p-4 bg-gray-50 space-y-2">
         <label className="flex items-center font-semibold text-base">
           <input

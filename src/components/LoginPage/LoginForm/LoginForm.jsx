@@ -22,6 +22,9 @@ export default function LoginForm() {
       // 로그인 성공시 토큰을 localStorage에 저장
       if (response.data && response.data.token) {
         localStorage.setItem('accessToken', response.data.token);
+        // 로그인한 사용자의 입력 id(customId)를 저장해 다른 컴포넌트에서 사용할 수 있도록 함
+        // (추후에 백엔드가 userId 숫자를 반환하면 그 값을 저장하도록 변경 가능)
+        localStorage.setItem('userId', id);
         console.log('로그인 성공:', response.data.message);
         // 로그인 성공시 홈페이지로 리다이렉트
         window.location.href = '/home';
