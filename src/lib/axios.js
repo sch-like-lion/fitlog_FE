@@ -9,39 +9,37 @@ axios.defaults.headers.post['Content-Type'] = 'application/json' // post 요청�
 */
 const baseURL = "https://fitlog.iubns.net"
 const normalAPI = axios.create({
-  baseURL : baseURL,
-  headers : {
-    post : {
-      'Content-Type' : 'application/json'
-    }
-  }
-})
+  baseURL: baseURL,
+  headers: {
+    post: {
+      "Content-Type": "application/json",
+    },
+  },
+});
 
 const cookieAPI = axios.create({
-  // baseURL : "http://fitlog.iubns.net:8080",
-  baseURL : baseURL,
-  withCredentials : true,
-  headers : {
-    post : {
-      'Content-Type' : 'application/json'
-    }
-  }
-})
+  baseURL: baseURL,
+  withCredentials: true,
+  headers: {
+    post: {
+      "Content-Type": "application/json",
+    },
+  },
+});
 
 const localStorageAPI = axios.create({
-  // baseURL : "http://fitlog.iubns.net:8080",
-  baseURL : baseURL,
-  headers : {
-    post : {
-      'Content-Type' : 'application/json'
-    }
-  }
-})
+  baseURL: baseURL,
+  headers: {
+    post: {
+      "Content-Type": "application/json",
+    },
+  },
+});
 
-localStorageAPI.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
-  if(token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+localStorageAPI.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-export { normalAPI, cookieAPI, localStorageAPI }
+export { normalAPI, cookieAPI, localStorageAPI };

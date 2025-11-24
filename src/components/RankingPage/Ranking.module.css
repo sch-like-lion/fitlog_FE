@@ -1,0 +1,89 @@
+/* 전체 래퍼: 스크린샷처럼 세로로 길쭉한 카드 느낌 */
+.container {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 16px 12px 24px;
+  background-color: #f5f5f5; /* 아주 옅은 회색 배경 */
+}
+
+/* 탭 영역 */
+.tabWrapper {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tabButton {
+  min-width: 120px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #e0e0e0; /* 비활성일 때 연한 회색 */
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabButtonActive {
+  background-color: #e08b3e; /* 주황색 탭 (스크린샷 상단 버튼 색) */
+}
+
+/* 리스트 영역 */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 개별 랭킹 카드 */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 14px;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* 왼쪽 원형 아바타 */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #29466e; /* 남색 계열 */
+  flex-shrink: 0;
+}
+
+/* 가운데 유저 정보 */
+.info {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #222222;
+  margin-bottom: 2px;
+}
+
+.points {
+  font-size: 0.75rem;
+  color: #555555;
+}
+
+/* 오른쪽 순위 표시 */
+.rank {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #777777;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
