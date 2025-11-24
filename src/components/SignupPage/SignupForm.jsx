@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Input from '../common/Input/Input';
 import Button from '../common/Button/Button';
+import { normalAPI } from "@/lib/axios";
 
 import { localStorageAPI } from '../../lib/axios';
 export default function SignupForm() {
@@ -14,6 +15,8 @@ export default function SignupForm() {
   const [weight, setWeight] = useState('');
 
   const [isEmailCodeEnabled, setIsEmailCodeEnabled] = useState(false);
+  const [isSendCodeDisabled, setIsSendCodeDisabled] = useState(false); // 인증번호 전송 버튼 비활성화
+  const [isVerifyDisabled, setIsVerifyDisabled] = useState(false); // 인증번호 확인 버튼 비활성화
   // 인증번호 입력창 활성화 비활성화를 결정하는 역할
 
   const [allAgree, setAllAgree] = useState(false);  // 모두 동의 체크박스체
@@ -25,8 +28,11 @@ export default function SignupForm() {
     adsOption: false,
   });
 
-  const handleSendCode = () => {
-    setIsEmailCodeEnabled(true);  // 이 함수 실행 시 isEmailCodeEnable가 true화 => 인증번호 입력창이 활성화됨
+  const handleSendCode = async () => {
+    if (!email) return;
+    setIsSendCodeDisabled(true);
+    await sendAuthCode(email);
+    setIsEmailCodeEnabled(true);
   };
 
   const handleAllAgree = (checked) => {
@@ -48,29 +54,36 @@ export default function SignupForm() {
   // 모든 항목이 체크되면 자동으로 [전체 동의]도 체크
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const body = {
-    nickname: name,
-    customId: userid,
-    password,
-    email,
-    height: parseInt(height, 10),
-    weight: parseInt(weight, 10),
-    mailcheck: !!emailCode, // 인증번호 입력이 있으면 true, 없으면 false
-  };
+    e.preventDefault();
+    if (!name) { alert('이름이 비어있습니다.'); return; }
+    if (!userid) { alert('아이디가 비어있습니다.'); return; }
+    if (!password) { alert('비밀번호가 비어있습니다.'); return; }
+    if (!email) { alert('이메일이 비어있습니다.'); return; }
+    if (!emailCode) { alert('인증번호가 비어있습니다.'); return; }
+    if (!height) { alert('키가 비어있습니다.'); return; }
+    if (!weight) { alert('몸무게가 비어있습니다.'); return; }
+
+    const body = {
+      nickname: name,
+      customId: userid,
+      password,
+      email,
+      height: parseInt(height, 10),
+      weight: parseInt(weight, 10),
+      mailcheck: !!emailCode,
+    };
 
   try {
-    const response = await fetch("https://fitlog.iubns.net/api/users/signup", {
+    const response = await fetch("https://fitlog.iubns.net:8080/api/users/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       const data = await response.json();
       alert(data.message);
-      // 가입 후 로그인 페이지로 이동
-      window.location.href = '/login';
+      // 가입 후 원하는 동작 (ex 페이지 이동)
     } else if (response.status === 400) {
       const error = await response.json();
       alert(error.message || Object.values(error)[0]);
@@ -82,6 +95,16 @@ export default function SignupForm() {
     console.error(err);
   }
 };
+
+
+  const sendAuthCode = async (email) => {
+    try {
+      const response = await normalAPI.post("/api/email", { email });
+      alert(response.data.message);
+    } catch (err) {
+      alert("인증번호 전송 실패");
+    }
+  };
 
 
   return (
@@ -124,8 +147,9 @@ export default function SignupForm() {
         />
         <Button
           type="button"
-          className="bg-gray-200 px-2 rounded text-sm text-white"
-          onClick={handleSendCode}  // 클릭할 경우 인증번호 전송. 
+          className={`${(!email || isSendCodeDisabled) ? 'bg-gray-400' : 'bg-black'} px-2 rounded text-sm text-white`}
+          onClick={handleSendCode}
+          disabled={!email || isSendCodeDisabled}
         >
           인증번호 전송
         </Button>
@@ -133,15 +157,20 @@ export default function SignupForm() {
 
       <div className="flex space-x-2">
         <Input
-          className={`flex-1 border p-2 rounded ${isEmailCodeEnabled ? '' : 'bg-gray-100'}`} 
-          // isEmailCodeEnable가 true, 즉 인증번호 전송 클릭시 배경색 x, 아니라면 배경색 회색
+          className={`flex-1 border p-2 rounded ${isEmailCodeEnabled ? '' : 'bg-gray-100'}`}
           placeholder="인증번호"
           value={emailCode}
           onChange={e => setEmailCode(e.target.value)}
-          disabled={!isEmailCodeEnabled}  
-          // isEmailCodeEnabled가 false라면 이 속성이 true가 되어 입력창이 비활성화되고, 사용자가 입력 불가능
+          disabled={!isEmailCodeEnabled}
         />
-        <Button type="button" className="bg-gray-200 px-2 rounded text-sm text-white">확인</Button>
+        <Button
+          type="button"
+          className={`${(!emailCode || isVerifyDisabled) ? 'bg-gray-400' : 'bg-black'} px-2 rounded text-sm text-white`}
+          onClick={() => verifyAuthCode(emailCode)}
+          disabled={!emailCode || isVerifyDisabled}
+        >
+          확인
+        </Button>
       </div>
 
       <Input
