@@ -1,23 +1,12 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { localStorageAPI } from '@/lib/axios';
 
-// 운동 기록 예시 데이터
-const records = {
-  '2025-11-11': [
-    { name: '스쿼트', set: 5, reps: 10 },
-    { name: '데드리프트', set: 4, reps: 8 },
-    { name: '푸쉬업', set: 6, reps: 15 }
-  ],
-  '2025-11-15': [{ name: '데드리프트', set: 3, reps: 10 }],
-  '2025-11-26': [{ name: '스쿼트', set: 7, reps: 12 }],
- };
-
-function getIntensity(date) {
-  // 운동 기록량에 따라 명도 결정 (0~1)
-  const rec = records[date];
-  if (!rec) return 0;
+// 운동 기록량에 따라 명도 계산 (0~1)
+function getIntensity(records) {
+  if (!records || records.length === 0) return 0;
   // 예시: 운동 세트 수 합산
-  const total = rec.reduce((sum, r) => sum + r.set, 0);
+  const total = records.reduce((sum, r) => sum + (r.set || 0), 0);
   return Math.min(total / 10, 1); // 최대 1
 }
 
@@ -28,13 +17,140 @@ export default function CalendarPage() {
   const month = currentDate.getMonth(); // 0~11
   const today = new Date();
 
+  // 선택된 날짜 상태 (YYYY-MM-DD)
+  const [selected, setSelected] = useState(
+    `${year}-${String(month + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  );
+
+  // 운동 기록 상태 (날짜별로 저장)
+  const [monthRecords, setMonthRecords] = useState({});
+  const [selectedDayRecords, setSelectedDayRecords] = useState([]); // 선택한 날의 운동 기록
+  const [loading, setLoading] = useState(false);
+  const [monthLoading, setMonthLoading] = useState(false);
+
+  // 로그인한 사용자 ID를 localStorage에서 읽어오도록 변경
+  // (LoginForm에서 localStorage.setItem('userId', id)로 저장함)
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const uid = localStorage.getItem('userId') || localStorage.getItem('customId') || null;
+      if (uid !== null) {
+        // 숫자형 ID를 기대하면 Number(uid)로 변환, 문자열이면 그대로 사용
+        const parsed = Number(uid);
+        setUserId(!isNaN(parsed) ? parsed : uid);
+      }
+    }
+  }, []);
+
+  // 특정 날짜의 운동 기록 조회
+  const fetchDayRecord = async (date) => {
+    // userId가 문자열(예: customId)로 저장되어 있고
+    // 서버가 내부 numeric id를 기대할 수 있으므로 토큰의 sub를 우선 사용하도록 시도
+    let userIdParam = null;
+    if (userId) {
+      // 숫자형으로 사용 가능한 값이면 그대로 사용
+      const n = Number(userId);
+      if (!isNaN(n)) userIdParam = n;
+    }
+
+    if (!userIdParam) {
+      // localStorage에 저장된 accessToken에서 sub(claim)를 파싱해서 사용해본다
+      try {
+        const t = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        if (t) {
+          const payload = JSON.parse(atob(t.split('.')[1]));
+          const sub = payload?.sub;
+          const sn = Number(sub);
+          if (sub && !isNaN(sn)) userIdParam = sn;
+        }
+      } catch (e) {
+        // parsing 실패 시 무시하고 아래에서 빈 결과 반환
+        console.warn('토큰에서 user id 파싱 실패', e);
+      }
+    }
+
+    if (!userIdParam) return [];
+
+    try {
+      const response = await localStorageAPI.get('/api/calender', {
+        params: {
+          userId: userIdParam,
+          date: date // YYYY-MM-DD 형식으로 get 요청을 보냄
+        }
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        const data = response.data;
+        // 응답이 단일 객체인 경우 배열로 변환
+        const recordArray = Array.isArray(data) ? data : [data];
+        return recordArray;
+      }
+    } catch (err) {
+      if (err.response?.status === 400) {
+        // 해당 날짜에 기록이 없는 경우
+        return [];
+      } else {
+        console.error('운동 기록 조회 실패:', err);
+        return [];
+      }
+    }
+  };
+
+  const fetchMonthRecords = async (year, month) => {
+    setMonthLoading(true);
+    const newMonthRecords = {};
+
+    if (!userId) {
+      // 사용자 ID가 없으면 빈 데이터로 처리
+      setMonthRecords({});
+      setMonthLoading(false);
+      return;
+    }
+
+    // 해당 월의 첫날과 마지막날
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    // 모든 날짜에 대해 병렬로 API 요청
+    const promises = [];
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      promises.push(
+        fetchDayRecord(dateStr).then(records => {
+          if (records && records.length > 0) {
+            newMonthRecords[dateStr] = records;
+          }
+        })
+      );
+    }
+
+    // 모든 요청이 완료될 때까지 대기
+    await Promise.all(promises);
+    
+    setMonthRecords(newMonthRecords);
+    setMonthLoading(false);
+  };
+
+  // ✅ 월 또는 userId가 바뀔 때마다 해당 월의 전체 기록 로드
+  useEffect(() => {
+    fetchMonthRecords(year, month);
+  }, [year, month, userId]);
+
+  // 선택한 날짜가 바뀔 때마다 해당 날짜 기록 표시
+  useEffect(() => {
+    setLoading(true);
+    // monthRecords에서 선택한 날짜의 기록 가져오기
+    const records = monthRecords[selected] || [];
+    setSelectedDayRecords(records);
+    setLoading(false);
+  }, [selected, monthRecords]);
+
   // 달력에 표시될 첫날(이전달 포함)과 마지막날(다음달 포함) 계산
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
-  // 달력 시작: 첫날이 속한 주의 일요일
   const startDay = new Date(firstDayOfMonth);
   startDay.setDate(1 - firstDayOfMonth.getDay());
-  // 달력 끝: 마지막날이 속한 주의 토요일
   const endDay = new Date(lastDayOfMonth);
   endDay.setDate(lastDayOfMonth.getDate() + (6 - lastDayOfMonth.getDay()));
 
@@ -56,11 +172,6 @@ export default function CalendarPage() {
   }
   const weeks = groupDatesByWeek(startDay, endDay);
 
-  // 선택된 날짜 상태 (YYYY-MM-DD)
-  const [selected, setSelected] = useState(
-    `${year}-${String(month + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-  );
-
   return (
     <div style={{ background: '#f7f3ef', minHeight: '100vh', padding: 20 }}>
       {/* 중앙 헤더 + 구분선 */}
@@ -69,12 +180,17 @@ export default function CalendarPage() {
           aria-label="이전 달"
           onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
           style={{ background: 'transparent', border: 'none', fontSize: 18, cursor: 'pointer', marginRight: 8 }}
+          disabled={monthLoading}
         >◀</button>
-        <span style={{ fontWeight: '700', fontSize: 20, minWidth: 120, textAlign: 'center' }}>{year}년 {month + 1}월</span>
+        <span style={{ fontWeight: '700', fontSize: 20, minWidth: 120, textAlign: 'center' }}>
+          {year}년 {month + 1}월
+          {monthLoading && <span style={{ fontSize: 14, color: '#666', marginLeft: 8 }}>로딩중...</span>}
+        </span>
         <button
           aria-label="다음 달"
           onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
           style={{ background: 'transparent', border: 'none', fontSize: 18, cursor: 'pointer', marginLeft: 8 }}
+          disabled={monthLoading}
         >▶</button>
       </div>
       <hr style={{ margin: '12px 0 16px 0 ', border: 'none', borderTop: '1.5px solid #000000' }} />
@@ -95,18 +211,18 @@ export default function CalendarPage() {
             const m = date.getMonth() + 1;
             const day = date.getDate();
             const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const intensity = getIntensity(dateStr);
+            const intensity = getIntensity(monthRecords[dateStr]);
             const isSelected = selected === dateStr;
             const isCurrentMonth = y === year && m === month + 1;
             return (
               <div
                 key={dateStr}
-                onClick={() => setSelected(dateStr)}
+                onClick={() => !monthLoading && setSelected(dateStr)}
                 style={{
                   width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   borderRadius: '50%',
                   position: 'relative',
-                  cursor: isCurrentMonth ? 'pointer' : 'default',
+                  cursor: isCurrentMonth && !monthLoading ? 'pointer' : 'default',
                   fontWeight: isSelected ? 'bold' : 'normal',
                   opacity: isCurrentMonth ? 1 : 0.6,
                   background: 'none',
@@ -141,20 +257,33 @@ export default function CalendarPage() {
           <div style={{ fontWeight: 'bold', marginBottom: 8 }}>
             {parseInt(selected.split('-')[2], 10)}일 운동 기록
           </div>
-          {(records[selected] || []).map((r, idx) => (
-            <div key={idx} style={{
-              display: 'flex', alignItems: 'center', background: '#fff',
-              borderRadius: 12, marginBottom: 8, padding: 12, boxShadow: '0 1px 4px #eee'
-            }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: 8, background: '#e88c2b', marginRight: 12
-              }} />
-              <div>
-                <div style={{ fontWeight: 'bold' }}>{r.name}</div>
-                <div style={{ fontSize: 13, color: '#666' }}>{r.set}세트 {r.reps}회</div>
+          {loading || monthLoading ? (
+            <div style={{ textAlign: 'center', padding: 20, color: '#666' }}>로딩 중...</div>
+          ) : selectedDayRecords.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 20, color: '#999' }}>운동 기록이 없습니다.</div>
+          ) : (
+            selectedDayRecords.map((r, idx) => (
+              <div key={idx} style={{
+                display: 'flex', alignItems: 'center', background: '#fff',
+                borderRadius: 12, marginBottom: 8, padding: 12, boxShadow: '0 1px 4px #eee'
+              }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 8, background: '#e88c2b', marginRight: 12
+                }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 'bold' }}>{r.exercise}</div>
+                  <div style={{ fontSize: 13, color: '#666' }}>
+                    {r.set}세트 · {r.weight}kg · {r.time}분
+                  </div>
+                  {r.strength && (
+                    <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                      강도: {r.strength} · 피로도: {r.fatigue}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
