@@ -1,6 +1,7 @@
-export default function NickName() {
-  // 사용자 닉네임 정보 (실제로는 props나 API에서 가져올 데이터)
-  const userNickName = "헬스왕";
+export default function NickName({ data }) {
+  if (!data) return null;
+
+  const userNickName = data.nickname;
 
   return (
     <div style={{
