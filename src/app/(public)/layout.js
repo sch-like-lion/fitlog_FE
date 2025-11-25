@@ -1,19 +1,18 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function PublicLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     
-    if (!token) {
-      router.replace('/login');
-    } else {
+    // 이미 로그인한 사용자는 홈으로
+    if (token) {
       router.replace('/home');
     }
   }, [router]);
 
-  return null;
+  return <>{children}</>;
 }

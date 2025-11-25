@@ -1,10 +1,19 @@
-export default function RankingIndicator() {
-  // 사용자 티어 정보 (실제로는 props나 API에서 가져올 데이터)
+export default function RankingIndicator({ data }) {
+  if (!data) return null;
+
+  // 티어별 색상 매핑
+  const tierColors = {
+    '브론즈': '#CD7F32',
+    '실버': '#C0C0C0',
+    '골드': '#FFD700',
+    '플래': '#E5E4E2',
+    '다이아': '#B9F2FF',
+  };
+
   const userTier = {
-    name: '골드',
-    percentage: 30,
-    image: '🥇', // 실제로는 이미지 URL을 사용
-    color: '#FFD700'
+    name: data.tierName,
+    image: data.tierImageUrl,
+    color: tierColors[data.tierName] || '#999999'
   };
 
   return (
@@ -20,7 +29,6 @@ export default function RankingIndicator() {
     }}>
       {/* 티어 사진 */}
       <div style={{
-        fontSize: '32px',
         marginRight: '16px',
         display: 'flex',
         alignItems: 'center',
@@ -30,7 +38,11 @@ export default function RankingIndicator() {
         borderRadius: '50%',
         backgroundColor: `${userTier.color}20`
       }}>
-        {userTier.image}
+        <img 
+          src={userTier.image} 
+          alt={userTier.name}
+          style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+        />
       </div>
       
       {/* 티어 정보 */}
@@ -50,7 +62,7 @@ export default function RankingIndicator() {
           display: 'flex',
           alignItems: 'center',
         }}>
-          상위 {userTier.percentage}%
+          티어 내 {data.rankInTier}등
         </div>
       </div>
     </div>

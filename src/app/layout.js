@@ -3,6 +3,7 @@ import "./globals.css"; // 전체 앱에 적용되는 CSS
 import Providers from "../components/Providers";
 
 export default function RootLayout({ children }) {
+  console.log('app 의 layout');
   return (
     <html lang="en" className="tc-new-price">
       <head>
