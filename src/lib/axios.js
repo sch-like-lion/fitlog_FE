@@ -36,10 +36,11 @@ const localStorageAPI = axios.create({
   },
 });
 
-localStorageAPI.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+localStorageAPI.interceptors.request.use(config => {
+  const token = localStorage.getItem('accessToken');
+  console.log(token);
+  if(token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
 export { normalAPI, cookieAPI, localStorageAPI };
